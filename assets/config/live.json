@@ -1,14 +1,16 @@
 {
-  "version": 1,
+  "version": 2,
   "feel": {},
   "economy": {},
-  "event": {
-    "id": "race-2026-w32",
+  "event": null,
+  "raceWeekly": {
     "name": "Weekend Score Race",
-    "startTs": 1786060800000,
-    "endTs": 1786320000000,
-    "seed": 424242
+    "startDow": 5,
+    "startHourUtc": 15,
+    "durH": 57,
+    "baseSeed": 424242
   },
+  "levels": {},
   "season": {
     "id": "s2026-08",
     "name": "Season 1 — Club Nights",
