@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="stylesheet" href="/src/style.css">
+<style>html,body{margin:0;padding:0;overflow:hidden}</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="game"></canvas>
+  <div id="ui"></div>
+</div>
+<script>
+// Reproduce the real runtime structure: #chrome created by Screens ctor,
+// .eom moved out of #ui into #chrome (screens.ts final layering pass).
+const DESIGN_W = 544, DESIGN_H = 960;
+const app = document.getElementById('app');
+const chrome = document.createElement('div');
+chrome.id = 'chrome';
+app.appendChild(chrome);
+
+function updateUiScale() {
+  const scale = Math.min(window.innerWidth / DESIGN_W, window.innerHeight / DESIGN_H);
+  const ui = document.getElementById('ui');
+  ui.style.setProperty('--ui-scale', String(scale));
+  const root = document.documentElement.style;
+  root.setProperty('--ui-scale', String(scale));
+  root.setProperty('--ui-vh', `${window.innerHeight / (scale || 1)}px`);
+}
+updateUiScale();
+window.addEventListener('resize', updateUiScale);
+
+const eom = document.createElement('div');
+eom.className = 'eom';
+const panel = document.createElement('div');
+panel.className = 'eom-panel';
+panel.innerHTML = '<div class="eom-title">Level 7 Complete!</div><div class="eom-score">1234</div>'
+  + '<div class="eom-actions"><button class="btn eom-next">Next Level</button></div>';
+eom.appendChild(panel);
+const tap = document.createElement('div');
+tap.className = 'tap-continue';
+tap.textContent = 'tap for the map';
+eom.appendChild(tap);
+chrome.appendChild(eom);
+
+window.__qa = () => {
+  const r = eom.getBoundingClientRect();
+  const pr = panel.getBoundingClientRect();
+  const pts = [5, 20, 40, 60, 70, 74, 76, 80, 120, 400, 700, 730, 736, 740, 760, 790, 808];
+  const hits = {};
+  for (const y of pts) {
+    const el = document.elementFromPoint(Math.round(window.innerWidth / 2), y);
+    hits[y] = el ? (el.tagName + (el.id ? '#' + el.id : '') + (el.className ? '.' + String(el.className).split(' ')[0] : '')) : 'null';
+  }
+  return {
+    viewport: [window.innerWidth, window.innerHeight],
+    uiScale: getComputedStyle(document.documentElement).getPropertyValue('--ui-scale').trim(),
+    uiVh: getComputedStyle(document.documentElement).getPropertyValue('--ui-vh').trim(),
+    eomRect: { top: r.top, bottom: r.bottom, left: r.left, right: r.right, h: r.height },
+    eomCursor: getComputedStyle(eom).cursor,
+    eomPosition: getComputedStyle(eom).position,
+    eomHeightCss: getComputedStyle(eom).height,
+    panelRect: { top: pr.top, bottom: pr.bottom, left: pr.left, right: pr.right },
+    hits,
+  };
+};
+</script>
+</body>
+</html>
