@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "feel": {},
   "economy": {},
   "event": null,
@@ -11,46 +11,5 @@
     "baseSeed": 424242
   },
   "levels": {},
-  "season": {
-    "id": "s2026-08",
-    "name": "Season 1 — Club Nights",
-    "endTs": 1788220800000,
-    "tiers": [
-      {
-        "points": 20,
-        "reward": {
-          "kind": "coins",
-          "amount": 5
-        }
-      },
-      {
-        "points": 50,
-        "reward": {
-          "kind": "gems",
-          "amount": 2
-        }
-      },
-      {
-        "points": 100,
-        "reward": {
-          "kind": "coins",
-          "amount": 15
-        }
-      },
-      {
-        "points": 180,
-        "reward": {
-          "kind": "gems",
-          "amount": 5
-        }
-      },
-      {
-        "points": 300,
-        "reward": {
-          "kind": "coins",
-          "amount": 40
-        }
-      }
-    ]
-  }
+  "season": null
 }
