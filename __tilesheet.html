@@ -1,0 +1,25 @@
+<!-- DEV-ONLY tile sheet exporter (not linked anywhere; vite dev server only) -->
+<canvas id="c" width="10" height="10"></canvas>
+<script type="module">
+import { TileSet, bakeMetalTile, bakeFireTile, bakeSpreadTile, bakeIceTile } from '/src/render/tiles.ts';
+import { powerTile } from '/src/render/powerups.ts';
+import { ColorType, iceOf } from '/src/core/types.ts';
+const set = await TileSet.load(0, true);
+const out = {};
+const grab = (name, cnv) => { if (cnv) out[name] = cnv.toDataURL('image/png'); };
+grab('c1', set.get(ColorType.C1)); grab('c2', set.get(ColorType.C2));
+grab('c3', set.get(ColorType.C3)); grab('c4', set.get(ColorType.C4));
+grab('c5', set.get(ColorType.C5));
+grab('garbage', set.get(ColorType.Garbage)); grab('payload', set.get(ColorType.Payload));
+grab('crate', set.get(ColorType.Crate)); grab('crate_cracked', set.get(ColorType.CrateCracked));
+grab('metal', set.get(ColorType.Metal)); grab('fire', set.get(ColorType.Fire));
+grab('spread', set.get(ColorType.Spread));
+grab('ice1', set.get(iceOf(ColorType.C1, false))); grab('ice1_cracked', set.get(iceOf(ColorType.C1, true)));
+grab('ice2', set.get(iceOf(ColorType.C2, false))); grab('ice3', set.get(iceOf(ColorType.C3, false)));
+grab('ice4', set.get(iceOf(ColorType.C4, false)));
+grab('power_rocket', powerTile('rocket', 96));
+grab('power_bomb', powerTile('bomb', 96));
+grab('power_colorshift', powerTile('colorshift', 96));
+window.__TILES__ = out;
+document.title = 'TILES_READY_' + Object.keys(out).length;
+</script>
