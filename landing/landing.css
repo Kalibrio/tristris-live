@@ -135,6 +135,17 @@ img { -webkit-user-drag: none; user-drag: none; }
   100% { opacity: 0.55; transform: scale(1); }
 }
 .stage.idle .logo-pulse { animation: pulseIdle 5.5s ease-in-out infinite; opacity: 0.55; transform: scale(1); }
+/* the playful wobble (Tetris-reference flair, 2026-08-24): every 7s the
+   logo rings down a short jelly nudge, then sits still */
+.stage.idle .logo-img { opacity: 1; animation: logoWobble 7s ease-in-out 1.2s infinite; }
+@keyframes logoWobble {
+  0% { transform: rotate(0deg) scale(1); }
+  2% { transform: rotate(2.1deg) scale(1.015, 0.985); }
+  5% { transform: rotate(-1.7deg) scale(0.99, 1.01); }
+  8% { transform: rotate(1.1deg) scale(1.006, 0.994); }
+  11% { transform: rotate(-0.5deg) scale(1); }
+  14%, 100% { transform: rotate(0deg) scale(1); }
+}
 @keyframes pulseIdle {
   0%, 100% { opacity: 0.45; transform: scale(0.97); }
   50% { opacity: 0.62; transform: scale(1.03); }
@@ -242,6 +253,6 @@ img { -webkit-user-drag: none; user-drag: none; }
   .stage.go .play { animation: none; opacity: 1; transform: none; }
   .stage.go .logo-pulse { animation: none; opacity: 0.5; transform: scale(1); }
   .stage.go .logo-sweep { animation: none; opacity: 0; }
-  .stage.idle .logo-pulse, .stage.idle .play { animation: none; }
+  .stage.idle .logo-pulse, .stage.idle .play, .stage.idle .logo-img { animation: none; }
   .piece { transition: none; }
 }

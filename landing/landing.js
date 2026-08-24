@@ -280,6 +280,7 @@
       this.par = { x: 0, y: 0, tx: 0, ty: 0 };
       this.t = 0;
       this.last = performance.now();
+      this.flairAt = 4.2; // first logo flair shortly after the intro
       this.burstDone = reducedMotion; // reduced motion skips the reveal burst
       this.running = true;
 
@@ -376,6 +377,19 @@
         this.burstDone = true;
         const c = TrumbleLogo.center();
         this.fx.burst(c.x, c.y, 20);
+      }
+
+      // logo flair (Tetris-reference, 2026-08-24): every ~6s a star glint
+      // pops on the logo's border ring with a small sparkle spray — timed
+      // against the CSS wobble so the logo glints, then shakes it off
+      if (!reducedMotion && this.t >= this.flairAt) {
+        this.flairAt = this.t + 5.5 + Math.random() * 2.5;
+        const r = TrumbleLogo.el.getBoundingClientRect();
+        const a = Math.random() * Math.PI * 2;
+        const gx = r.left + r.width / 2 + Math.cos(a) * r.width * 0.5;
+        const gy = r.top + r.height / 2 + Math.sin(a) * r.height * 0.44;
+        this.fx.glint = { x: gx, y: gy, t0: this.t, gold: Math.random() < 0.6 };
+        this.fx.burst(gx, gy, 5);
       }
 
       // the logo answers parallax with the gentlest possible hand
