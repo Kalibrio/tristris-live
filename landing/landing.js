@@ -292,22 +292,31 @@
       const en = all.filter((v) => v.lang.toLowerCase().startsWith('en'));
       const list = en.length ? en : all;
       const find = (names) => list.find((v) => names.some((n) => v.name.toLowerCase().includes(n))) || null;
-      this.cheer = find(['samantha', 'karen', 'victoria', 'moira', 'tessa', 'zira', 'jenny', 'female']);
-      this.announcer = find(['daniel', 'fred', 'aaron', 'alex', 'david', 'guy', 'male']);
+      const females = ['samantha', 'ava', 'allison', 'susan', 'nicky', 'zoe', 'karen',
+        'victoria', 'moira', 'tessa', 'kate', 'serena', 'martha', 'zira', 'jenny', 'female', 'woman'];
+      const us = list.filter((v) => v.lang.toLowerCase() === 'en-us');
+      const pool = us.length ? us : list;
+      this.cheer =
+        pool.find((v) => females.some((n) => v.name.toLowerCase().includes(n)) && /enhanced|premium/i.test(v.name))
+        || pool.find((v) => females.some((n) => v.name.toLowerCase().includes(n)))
+        || find(females);
+      this.announcer = find(['daniel', 'fred', 'aaron', 'alex', 'david', 'guy', 'arthur', 'oliver', 'male']);
     },
     say(text, announcer, finale) {
       if (!('speechSynthesis' in window)) return;
       try {
         speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(text);
-        // pitch 1.2 across the board — the voices carry the character
-        u.pitch = 1.2;
         if (announcer) {
           if (this.announcer) u.voice = this.announcer;
+          u.pitch = 1.2;
           u.rate = 0.95;
         } else {
+          // the cheerleader sparkles: bright, quick, joyful
           if (this.cheer) u.voice = this.cheer;
-          u.rate = 1.15;
+          u.pitch = finale ? 1.5 : 1.4;
+          u.rate = 1.3;
+          u.text = text.endsWith('!') ? text : `${text}!`;
         }
         u.volume = 0.9;
         speechSynthesis.speak(u);
