@@ -135,17 +135,21 @@ img { -webkit-user-drag: none; user-drag: none; }
   100% { opacity: 0.55; transform: scale(1); }
 }
 .stage.idle .logo-pulse { animation: pulseIdle 5.5s ease-in-out infinite; opacity: 0.55; transform: scale(1); }
-/* the playful wobble (Tetris-reference flair, 2026-08-24): every 7s the
-   logo rings down a short jelly nudge, then sits still */
-.stage.idle .logo-img { opacity: 1; animation: logoWobble 7s ease-in-out 1.2s infinite; }
-@keyframes logoWobble {
-  0% { transform: rotate(0deg) scale(1); }
-  2% { transform: rotate(2.1deg) scale(1.015, 0.985); }
-  5% { transform: rotate(-1.7deg) scale(0.99, 1.01); }
-  8% { transform: rotate(1.1deg) scale(1.006, 0.994); }
-  11% { transform: rotate(-0.5deg) scale(1); }
-  14%, 100% { transform: rotate(0deg) scale(1); }
+/* once idle, the JS jelly spring owns the img transform — the reveal's
+   forwards fill must stand down or inline transforms never apply */
+.stage.idle .logo-img { animation: none; opacity: 1; will-change: transform, filter; }
+.logo-wrap.pressable { pointer-events: auto; cursor: pointer; touch-action: none; }
+/* floating words popping off a tapped logo — the +10 grammar */
+.logo-word {
+  position: fixed;
+  z-index: 8;
+  font-family: "Lilita One", sans-serif;
+  font-size: 30px;
+  pointer-events: none;
+  text-shadow: 0 2px 0 rgba(10, 8, 30, 0.65), 0 0 14px rgba(0, 0, 0, 0.3);
+  transform: translate(-50%, -50%);
 }
+.logo-word.big { font-size: 44px; text-shadow: 0 3px 0 rgba(90, 50, 0, 0.7), 0 0 26px rgba(255, 212, 71, 0.8); }
 @keyframes pulseIdle {
   0%, 100% { opacity: 0.45; transform: scale(0.97); }
   50% { opacity: 0.62; transform: scale(1.03); }
@@ -254,5 +258,6 @@ img { -webkit-user-drag: none; user-drag: none; }
   .stage.go .logo-pulse { animation: none; opacity: 0.5; transform: scale(1); }
   .stage.go .logo-sweep { animation: none; opacity: 0; }
   .stage.idle .logo-pulse, .stage.idle .play, .stage.idle .logo-img { animation: none; }
+  .logo-word { display: none; }
   .piece { transition: none; }
 }

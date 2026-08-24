@@ -266,6 +266,159 @@
     },
   };
 
+  // ── JellyLogo: the squishy press ────────────────────────────────────
+  // A tiny material performance (the jelly spec, 2026-08-24): the logo
+  // yields under the finger within a frame, stores the pressure, then
+  // releases it through diminishing ripples. One underdamped spring owns
+  // the deformation, so rapid taps ADD force to motion already passing
+  // through — the logo remembers. Volume is conserved (shorter → wider),
+  // the deformation anchors at the touch point, and sound + haptics peak
+  // with maximum compression. Words pop in the fixed loop
+  // Tumble → Rumble → Crumble → Boing → Boing → TRUMBLE!, and completing
+  // the loop fires the amplifier.
+  const WORD_SEQ = [
+    ['Tumble', '#5AD1FF'], ['Rumble', '#FF9D3C'], ['Crumble', '#FF5470'],
+    ['Boing', '#8AF26A'], ['Boing', '#8AF26A'], ['Trumble', '#FFD447'],
+  ];
+
+  class JellySound {
+    ensure() {
+      if (!this.ctx) {
+        try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch { this.ctx = null; }
+      }
+      if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+      return this.ctx;
+    }
+    /** A soft rounded blip: lowpassed, no sharp transient. */
+    blip(f0, f1, dur, gain, type = 'sine') {
+      const ctx = this.ensure();
+      if (!ctx) return;
+      const t0 = ctx.currentTime;
+      const o = ctx.createOscillator();
+      o.type = type;
+      const g = ctx.createGain();
+      const lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 900;
+      o.frequency.setValueAtTime(Math.max(30, f0), t0);
+      o.frequency.exponentialRampToValueAtTime(Math.max(30, f1), t0 + dur);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(gain, t0 + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(lp); lp.connect(g); g.connect(ctx.destination);
+      o.start(t0); o.stop(t0 + dur + 0.02);
+    }
+    mup(p) { this.blip(150 * p, 95 * p, 0.09, 0.08); }
+    woop(p) { this.blip(230 * p, 400 * p, 0.12, 0.07); }
+    ting(p) { this.blip(520 * p, 780 * p, 0.16, 0.05, 'triangle'); this.blip(660 * p, 990 * p, 0.2, 0.04, 'triangle'); }
+  }
+
+  class JellyLogo {
+    constructor(wrap, img, fx, stage) {
+      this.wrap = wrap; this.img = img; this.fx = fx; this.stage = stage;
+      wrap.classList.add('pressable');
+      this.u = 0; this.vu = 0;   // squash: negative = compressed
+      this.l = 0; this.vl = 0;   // lean, springs back to centre
+      this.leanDrag = 0;
+      this.target = 0;
+      this.pressed = false;
+      this.seq = 0; this.combo = 0; this.lastTap = -9;
+      this.snd = new JellySound();
+      wrap.addEventListener('pointerdown', (e) => this.down(e));
+      addEventListener('pointerup', () => this.up());
+      addEventListener('pointercancel', () => this.up());
+      wrap.addEventListener('pointermove', (e) => this.move(e));
+    }
+    down(e) {
+      e.preventDefault();
+      const r = this.wrap.getBoundingClientRect();
+      const ox = Math.max(10, Math.min(90, ((e.clientX - r.left) / r.width) * 100));
+      this.img.style.transformOrigin = `${ox}% 88%`;
+      this.pressed = true;
+      this.dragX0 = e.clientX;
+      this.target = reducedMotion ? -0.04 : -0.16;
+      this.vl += (50 - ox) * 1.2; // press the left, the jelly pushes right
+      const now = performance.now() / 1000;
+      this.combo = now - this.lastTap < 0.7 ? Math.min(6, this.combo + 1) : 0;
+      this.lastTap = now;
+      const pitch = (1 + this.combo * 0.02) * (0.98 + Math.random() * 0.04);
+      this.snd.mup(pitch);
+      if (navigator.vibrate) navigator.vibrate(8);
+      this.word(r);
+    }
+    move(e) {
+      if (!this.pressed) return;
+      this.leanDrag = Math.max(-40, Math.min(40, e.clientX - this.dragX0)) * 0.45;
+    }
+    up() {
+      if (!this.pressed) return;
+      this.pressed = false;
+      this.target = 0;
+      if (!reducedMotion) this.vu += 2.6 * (1 + this.combo * 0.05); // stored energy escapes
+      if (this.leanDrag) { this.vl += this.leanDrag * 6; this.leanDrag = 0; } // slingshot
+      const pitch = (1 + this.combo * 0.02) * (0.98 + Math.random() * 0.04);
+      this.snd.woop(pitch);
+      if (navigator.vibrate) navigator.vibrate(4);
+    }
+    word(r) {
+      const step = this.seq % WORD_SEQ.length;
+      const [text, color] = WORD_SEQ[step];
+      const finale = step === WORD_SEQ.length - 1;
+      this.seq++;
+      if (!reducedMotion) {
+        const el = document.createElement('span');
+        el.className = 'logo-word' + (finale ? ' big' : '');
+        el.textContent = finale ? 'Trumble!' : text;
+        el.style.color = color;
+        el.style.left = `${r.left + r.width * (0.25 + Math.random() * 0.5)}px`;
+        el.style.top = `${r.top + r.height * (0.2 + Math.random() * 0.25)}px`;
+        document.body.appendChild(el);
+        const rise = finale ? 96 : 64;
+        const anim = el.animate([
+          { transform: 'translate(-50%, -50%) scale(0.5)', opacity: 0 },
+          { transform: 'translate(-50%, -58%) scale(1.1)', opacity: 1, offset: 0.18 },
+          { transform: `translate(-50%, calc(-50% - ${rise}px)) scale(1)`, opacity: 0 },
+        ], { duration: finale ? 1100 : 850, easing: 'cubic-bezier(0.2, 0.7, 0.4, 1)' });
+        anim.onfinish = () => el.remove();
+      }
+      if (finale) this.finale(r);
+    }
+    /** The loop lands on TRUMBLE — everything peaks at once. */
+    finale(r) {
+      this.fx.burst(r.left + r.width / 2, r.top + r.height / 2, 30);
+      this.stage.classList.remove('flare');
+      void this.stage.offsetWidth;
+      this.stage.classList.add('flare');
+      if (!reducedMotion) this.vu += 2.2;
+      this.snd.ting(1 + this.combo * 0.015);
+      if (navigator.vibrate) navigator.vibrate([10, 30, 14]);
+    }
+    update(t, dt) {
+      // soft underdamped spring (k~300, c~17, m~0.85); reduced motion runs
+      // it overdamped, so the compress fades with no oscillation
+      const k = 300 / 0.85;
+      const cD = (reducedMotion ? 34 : 17) / 0.85;
+      this.vu += (k * (this.target - this.u) - cD * this.vu) * dt;
+      this.u = Math.max(-0.2, Math.min(0.16, this.u + this.vu * dt));
+      this.vl += ((0 - this.l) * 180 - this.vl * 10) * dt;
+      this.l += this.vl * dt;
+      const lean = this.l + this.leanDrag;
+      const sy = 1 + this.u;
+      const sx = Math.min(1.16, Math.max(0.84, 1 - this.u * 0.72)); // volume conserved
+      let hb = 1;
+      if (!reducedMotion && !this.pressed && Math.abs(this.u) < 0.01 && Math.abs(this.vu) < 0.05) {
+        // the heartbeat: a lub-dub double pump every 1.6s, only at rest
+        const ph = t % 1.6;
+        hb = 1 + 0.024 * Math.exp(-Math.pow(ph - 0.10, 2) / 0.004)
+          + 0.017 * Math.exp(-Math.pow(ph - 0.34, 2) / 0.005);
+      }
+      const dy = -this.u * this.wrap.offsetHeight * 0.22;
+      this.img.style.transform =
+        `translate3d(${(lean * 0.14).toFixed(2)}px, ${dy.toFixed(2)}px, 0) rotate(${(lean * 0.0011).toFixed(4)}rad) scale(${(sx * hb).toFixed(4)}, ${(sy * hb).toFixed(4)})`;
+      this.img.style.filter = this.u < -0.02 ? 'brightness(0.95) saturate(1.05)' : '';
+    }
+  }
+
   // ── TrumbleLanding: the orchestrator ────────────────────────────────
   class TrumbleLanding {
     constructor() {
@@ -274,6 +427,7 @@
       this.piecesHost = document.getElementById('pieces');
       this.playBtn = document.getElementById('play');
       this.fx = new ParticleLayer(document.getElementById('fx'));
+      this.jelly = new JellyLogo(TrumbleLogo.el, document.querySelector('.logo-img'), this.fx, this.stage);
       this.pieces = SLOTS
         .filter((s) => (isMobile ? s.mobile : true))
         .map((s) => new AnimatedPiece(s, this.piecesHost));
@@ -371,6 +525,7 @@
 
       for (const p of this.pieces) p.update(this.t, dt, this.par);
       this.fx.update(this.t, dt);
+      if (this.stage.classList.contains('idle')) this.jelly.update(this.t, dt);
 
       // the reveal burst lands as the logo hits its overshoot beat
       if (!this.burstDone && this.t >= 1.55) {
