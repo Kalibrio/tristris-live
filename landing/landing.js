@@ -361,6 +361,7 @@
       this.target = 0;
       this.pressed = false;
       this.seq = 0; this.combo = 0; this.lastTap = -9;
+      this.wordLane = 0;
       this.snd = new JellySound();
       wrap.addEventListener('pointerdown', (e) => this.down(e));
       addEventListener('pointerup', () => this.up());
@@ -413,9 +414,13 @@
         el.className = 'logo-word' + (finale ? ' big' : '');
         el.textContent = finale ? 'Trumble!' : text;
         el.style.color = color;
-        el.style.left = `${r.left + r.width * (0.25 + Math.random() * 0.5)}px`;
-        // clear of the wordmark: pop from ~10% above the logo's top edge
-        el.style.top = `${r.top - r.height * (0.10 + Math.random() * 0.08)}px`;
+        // clear of the wordmark AND of each other: rotate through four
+        // lanes, and lift over any word still on screen
+        const LANES = [0.2, 0.62, 0.38, 0.8];
+        const lane = LANES[this.wordLane++ % LANES.length];
+        const live = document.querySelectorAll('.logo-word').length;
+        el.style.left = `${r.left + r.width * lane + (Math.random() - 0.5) * 10}px`;
+        el.style.top = `${r.top - r.height * 0.10 - Math.min(4, live) * 32}px`;
         document.body.appendChild(el);
         const rise = finale ? 96 : 64;
         const anim = el.animate([
