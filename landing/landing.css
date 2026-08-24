@@ -78,7 +78,7 @@ img { -webkit-user-drag: none; user-drag: none; }
   opacity: 0;
 }
 .piece img { display: block; width: 100%; height: auto; pointer-events: none; }
-.piece.far { z-index: 1; filter: blur(2px) saturate(0.85); }
+.piece.far { z-index: 1; filter: blur(2px) saturate(0.85) drop-shadow(0 3px 6px rgba(4, 8, 26, 0.5)); }
 .piece.mid { z-index: 2; filter: drop-shadow(0 6px 14px rgba(4, 8, 26, 0.45)); }
 .piece.fore { z-index: 4; filter: drop-shadow(0 10px 22px rgba(4, 8, 26, 0.55)); }
 

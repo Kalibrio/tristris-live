@@ -51,10 +51,12 @@
     { s: 'l-red', x: 5, y: 55, d: 'far', from: 'left', mobile: false },
     { s: 'o-yellow', x: 74, y: 74, d: 'fore', from: 'bottom-right', mobile: false },
   ];
+  // near-solid at every depth (2026-08-24): translucent pieces read washed
+  // out — size, speed, blur and shadow carry the depth instead
   const DEPTH = {
-    far: { size: [7, 9], op: [0.45, 0.6], speed: 0.55, parallax: 4 },
-    mid: { size: [11, 14], op: [0.72, 0.88], speed: 0.8, parallax: 9 },
-    fore: { size: [16, 20], op: [0.95, 1], speed: 1.05, parallax: 15 },
+    far: { size: [7, 9], op: [0.8, 0.88], speed: 0.55, parallax: 4 },
+    mid: { size: [11, 14], op: [0.93, 0.98], speed: 0.8, parallax: 9 },
+    fore: { size: [16, 20], op: [1, 1], speed: 1.05, parallax: 15 },
   };
   const FROM_VEC = {
     top: [0, -1], bottom: [0, 1], left: [-1, 0], right: [1, 0],
