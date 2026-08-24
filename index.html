@@ -16,6 +16,24 @@
   <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png" />
   <link rel="manifest" href="manifest.webmanifest" />
   <title>Trumble</title>
+  <script>
+    // THE LANDING PAGE IS THE FRONT DOOR (2026-08-24): a fresh web visit to
+    // the root shows /landing/ first — the title screen — and PLAY NOW
+    // returns here with the session flag set, so one visit sees it once.
+    // Gated on the public hostname, so the native app (capacitor://localhost)
+    // and local dev are never redirected; dev deep links (?play=) and the
+    // landing's own handoff (?from=landing) pass straight through even when
+    // storage is unavailable, so a redirect loop is impossible.
+    (function () {
+      if (location.hostname !== 'trumble.kalibrio.com') return;
+      var q = location.search;
+      if (q.indexOf('play=') !== -1 || q.indexOf('from=landing') !== -1) return;
+      try {
+        if (sessionStorage.getItem('tristris.entered')) return;
+      } catch (e) { return; } // no storage: fail open to the game
+      location.replace('/landing/');
+    })();
+  </script>
   <script type="module" crossorigin src="/assets/index-Ffz96pb3.js"></script>
   <link rel="stylesheet" crossorigin href="/assets/index-CEZ4Lglv.css">
 </head>

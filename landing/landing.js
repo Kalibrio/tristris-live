@@ -341,9 +341,12 @@
         this.fx.burst(c.x, c.y, 26);
         for (const p of this.pieces) p.shove(c.x, c.y);
       }
-      // The placeholder handoff: on trumble.kalibrio.com the game lives at
-      // the origin root, so the landing page's start IS a navigation.
-      setTimeout(() => { location.href = '/'; }, 620);
+      // The handoff: the game lives at the origin root. The session flag
+      // tells the root's front-door gate this visit has entered, and the
+      // ?from=landing param covers browsers with no storage, so the gate
+      // can never bounce us back here in a loop.
+      try { sessionStorage.setItem('tristris.entered', '1'); } catch { /* no storage: the param carries it */ }
+      setTimeout(() => { location.href = '/?from=landing'; }, 620);
     }
 
     frame(now) {
