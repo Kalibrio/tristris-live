@@ -300,14 +300,14 @@
       try {
         speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(text);
+        // pitch 1.2 across the board — the voices carry the character
+        u.pitch = 1.2;
         if (announcer) {
           if (this.announcer) u.voice = this.announcer;
-          u.pitch = finale ? 0.4 : 0.5;
-          u.rate = finale ? 0.75 : 0.9;
+          u.rate = 0.95;
         } else {
           if (this.cheer) u.voice = this.cheer;
-          u.pitch = finale ? 1.8 : 1.6;
-          u.rate = finale ? 1.05 : 1.2;
+          u.rate = 1.15;
         }
         u.volume = 0.9;
         speechSynthesis.speak(u);
@@ -405,10 +405,7 @@
       const [text, color] = WORD_SEQ[step];
       const finale = step === WORD_SEQ.length - 1;
       this.seq++;
-      JellyVoice.say(
-        finale ? (announcer ? 'Truuumble!' : 'Trumble!') : text,
-        announcer, finale,
-      );
+      JellyVoice.say(finale ? 'Trumble!' : text, announcer, finale);
       if (!reducedMotion) {
         const el = document.createElement('span');
         el.className = 'logo-word' + (finale ? ' big' : '');
