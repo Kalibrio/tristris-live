@@ -281,6 +281,44 @@
     ['Boing', '#8AF26A'], ['Boing', '#8AF26A'], ['Trumble', '#FFD447'],
   ];
 
+  // ── the VOICES: the word loop is spoken — one full loop cheerleader
+  // (high, quick), the next boxing announcer (deep, slow), alternating.
+  const JellyVoice = {
+    cheer: null, announcer: null,
+    pick() {
+      if (!('speechSynthesis' in window)) return;
+      const all = speechSynthesis.getVoices();
+      if (!all.length) return;
+      const en = all.filter((v) => v.lang.toLowerCase().startsWith('en'));
+      const list = en.length ? en : all;
+      const find = (names) => list.find((v) => names.some((n) => v.name.toLowerCase().includes(n))) || null;
+      this.cheer = find(['samantha', 'karen', 'victoria', 'moira', 'tessa', 'zira', 'jenny', 'female']);
+      this.announcer = find(['daniel', 'fred', 'aaron', 'alex', 'david', 'guy', 'male']);
+    },
+    say(text, announcer, finale) {
+      if (!('speechSynthesis' in window)) return;
+      try {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        if (announcer) {
+          if (this.announcer) u.voice = this.announcer;
+          u.pitch = finale ? 0.4 : 0.5;
+          u.rate = finale ? 0.75 : 0.9;
+        } else {
+          if (this.cheer) u.voice = this.cheer;
+          u.pitch = finale ? 1.8 : 1.6;
+          u.rate = finale ? 1.05 : 1.2;
+        }
+        u.volume = 0.9;
+        speechSynthesis.speak(u);
+      } catch { /* mute platform stays mute */ }
+    },
+  };
+  if ('speechSynthesis' in window) {
+    speechSynthesis.onvoiceschanged = () => JellyVoice.pick();
+    JellyVoice.pick();
+  }
+
   class JellySound {
     ensure() {
       if (!this.ctx) {
@@ -362,9 +400,14 @@
     }
     word(r) {
       const step = this.seq % WORD_SEQ.length;
+      const announcer = Math.floor(this.seq / WORD_SEQ.length) % 2 === 1;
       const [text, color] = WORD_SEQ[step];
       const finale = step === WORD_SEQ.length - 1;
       this.seq++;
+      JellyVoice.say(
+        finale ? (announcer ? 'Truuumble!' : 'Trumble!') : text,
+        announcer, finale,
+      );
       if (!reducedMotion) {
         const el = document.createElement('span');
         el.className = 'logo-word' + (finale ? ' big' : '');
