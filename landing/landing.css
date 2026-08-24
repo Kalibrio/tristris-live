@@ -1,0 +1,247 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   TRUMBLE LANDING — midnight toybox
+   Layers, bottom to top: background → pieces (far/mid/fore by z-index) →
+   particle canvas → hero (logo + PLAY). Every continuous animation runs on
+   transform/opacity only; positions are set once at spawn.
+   ═══════════════════════════════════════════════════════════════════════ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: #070B22;
+}
+body {
+  font-family: "Lilita One", "Arial Rounded MT Bold", system-ui, sans-serif;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+img { -webkit-user-drag: none; user-drag: none; }
+
+.stage {
+  position: fixed;
+  inset: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* ── background: the supplied midnight-to-amber painting ─────────────── */
+.bg {
+  position: absolute;
+  inset: -3%;
+  background: url("assets/background.png") center / cover no-repeat;
+  opacity: 0;
+  transform: scale(1.04);
+  will-change: transform, opacity;
+}
+.stage.go .bg {
+  animation:
+    bgIn 0.9s cubic-bezier(0.22, 0.8, 0.3, 1) forwards,
+    bgBreathe 42s ease-in-out 1s infinite;
+}
+@keyframes bgIn {
+  from { opacity: 0; transform: scale(1.04); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes bgBreathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.012); }
+}
+
+/* ── the animation field: full-bleed on phones, a centred portrait band on
+      wide screens so the composition never stretches ─────────────────── */
+.field {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100%;
+  max-width: 1150px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.fx {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+}
+
+/* ── pieces: one <img> per instance, JS drives the transform ─────────── */
+.pieces { position: absolute; inset: 0; }
+.piece {
+  position: absolute;
+  will-change: transform, opacity;
+  opacity: 0;
+}
+.piece img { display: block; width: 100%; height: auto; pointer-events: none; }
+.piece.far { z-index: 1; filter: blur(2px) saturate(0.85); }
+.piece.mid { z-index: 2; filter: drop-shadow(0 6px 14px rgba(4, 8, 26, 0.45)); }
+.piece.fore { z-index: 4; filter: drop-shadow(0 10px 22px rgba(4, 8, 26, 0.55)); }
+
+/* ── hero ─────────────────────────────────────────────────────────────── */
+.hero {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(20px, 4.5vh, 44px);
+  padding-bottom: calc(6vh + env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
+}
+.logo-wrap {
+  position: relative;
+  width: min(88vw, 520px, 62vh);
+  /* sits a touch above visual centre */
+  margin-top: -6vh;
+}
+.logo-img {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: auto;
+  opacity: 0;
+  transform: translateY(14px) scale(0.72);
+  will-change: transform, opacity;
+}
+.stage.go .logo-img { animation: logoIn 1.3s cubic-bezier(0.2, 1.1, 0.32, 1) 0.9s forwards; }
+@keyframes logoIn {
+  0% { opacity: 0; transform: translateY(14px) scale(0.72); }
+  38% { opacity: 1; }
+  58% { transform: translateY(-2px) scale(1.06); }
+  78% { transform: translateY(0) scale(0.985); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+/* the restrained radial pulse behind the reveal */
+.logo-pulse {
+  position: absolute;
+  inset: -18%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(90, 209, 255, 0.35), rgba(90, 209, 255, 0.12) 55%, rgba(90, 209, 255, 0) 72%);
+  opacity: 0;
+  transform: scale(0.6);
+  will-change: transform, opacity;
+}
+.stage.go .logo-pulse { animation: pulseIn 1.5s cubic-bezier(0.2, 0.8, 0.3, 1) 1.0s forwards; }
+@keyframes pulseIn {
+  0% { opacity: 0; transform: scale(0.6); }
+  35% { opacity: 1; }
+  100% { opacity: 0.55; transform: scale(1); }
+}
+.stage.idle .logo-pulse { animation: pulseIdle 5.5s ease-in-out infinite; opacity: 0.55; transform: scale(1); }
+@keyframes pulseIdle {
+  0%, 100% { opacity: 0.45; transform: scale(0.97); }
+  50% { opacity: 0.62; transform: scale(1.03); }
+}
+/* warm gold highlight travelling once around the outer border */
+.logo-sweep {
+  position: absolute;
+  inset: 4%;
+  z-index: 3;
+  border-radius: 28% / 44%;
+  padding: 3px;
+  background: conic-gradient(from 0deg,
+    rgba(255, 216, 61, 0) 0deg, rgba(255, 232, 140, 0.95) 24deg, rgba(255, 216, 61, 0) 60deg, rgba(255, 216, 61, 0) 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.stage.go .logo-sweep { animation: sweepOnce 1.05s cubic-bezier(0.4, 0, 0.3, 1) 1.35s forwards; }
+@keyframes sweepOnce {
+  0% { opacity: 0; transform: rotate(0deg); }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(360deg); }
+}
+/* press flare — briefly intensified glow when PLAY is hit */
+.stage.flare .logo-pulse {
+  animation: flare 0.55s ease-out;
+}
+@keyframes flare {
+  0% { opacity: 0.55; transform: scale(1); }
+  30% { opacity: 1; transform: scale(1.12); }
+  100% { opacity: 0.55; transform: scale(1); }
+}
+
+/* ── PLAY NOW ─────────────────────────────────────────────────────────── */
+.play {
+  pointer-events: auto;
+  position: relative;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: clamp(1.35rem, 5.4vw, 1.9rem);
+  letter-spacing: 0.04em;
+  color: #FFF8DC;
+  text-shadow: 0 2px 0 rgba(122, 74, 6, 0.9);
+  padding: clamp(16px, 2.4vh, 22px) clamp(44px, 12vw, 76px);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #FFE06A 0%, #FFC61E 45%, #F8A909 100%);
+  box-shadow:
+    0 6px 0 #B8720A,
+    0 12px 26px rgba(6, 10, 32, 0.55),
+    inset 0 2px 0 rgba(255, 255, 255, 0.55),
+    0 0 24px rgba(255, 198, 30, 0.28);
+  opacity: 0;
+  transform: translateY(10px) scale(0.9);
+  will-change: transform, opacity;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+/* glossy top highlight */
+.play::before {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 7%;
+  height: 38%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+.stage.go .play { animation: playIn 0.55s cubic-bezier(0.2, 1.2, 0.35, 1) 1.9s forwards; }
+@keyframes playIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.stage.idle .play { animation: playGlow 3.4s ease-in-out infinite; opacity: 1; transform: none; }
+@keyframes playGlow {
+  0%, 100% { box-shadow: 0 6px 0 #B8720A, 0 12px 26px rgba(6, 10, 32, 0.55), inset 0 2px 0 rgba(255, 255, 255, 0.55), 0 0 22px rgba(255, 198, 30, 0.24); }
+  50% { box-shadow: 0 6px 0 #B8720A, 0 12px 26px rgba(6, 10, 32, 0.55), inset 0 2px 0 rgba(255, 255, 255, 0.55), 0 0 34px rgba(255, 198, 30, 0.42); }
+}
+@media (hover: hover) {
+  .stage.idle .play:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.06);
+    box-shadow: 0 9px 0 #B8720A, 0 16px 30px rgba(6, 10, 32, 0.6), inset 0 2px 0 rgba(255, 255, 255, 0.6), 0 0 44px rgba(255, 198, 30, 0.5);
+  }
+}
+.stage.idle .play:active { transform: translateY(1px) scale(0.96); animation: none; }
+.play:focus-visible {
+  outline: 3px solid #FFE06A;
+  outline-offset: 4px;
+}
+
+/* ── reduced motion: everything present, nearly still ────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .stage.go .bg { animation: bgBreatheSlow 60s ease-in-out infinite; opacity: 1; transform: none; }
+  @keyframes bgBreatheSlow {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.006); }
+  }
+  .stage.go .logo-img,
+  .stage.go .play { animation: none; opacity: 1; transform: none; }
+  .stage.go .logo-pulse { animation: none; opacity: 0.5; transform: scale(1); }
+  .stage.go .logo-sweep { animation: none; opacity: 0; }
+  .stage.idle .logo-pulse, .stage.idle .play { animation: none; }
+  .piece { transition: none; }
+}

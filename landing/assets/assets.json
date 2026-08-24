@@ -1,0 +1,16 @@
+{
+  "background": "background.png",
+  "logo": "logo.png",
+  "sprites": [
+    { "id": "o-red", "file": "o-red.png", "shape": "O", "color": "red", "tiles": 4 },
+    { "id": "o-yellow", "file": "o-yellow.png", "shape": "O", "color": "yellow", "tiles": 4 },
+    { "id": "o-blue", "file": "o-blue.png", "shape": "O", "color": "blue", "tiles": 4 },
+    { "id": "l-red", "file": "l-red.png", "shape": "L", "color": "red", "tiles": 3 },
+    { "id": "l-yellow", "file": "l-yellow.png", "shape": "L", "color": "yellow", "tiles": 3 },
+    { "id": "l-blue", "file": "l-blue.png", "shape": "L", "color": "blue", "tiles": 3 },
+    { "id": "x-red", "file": "x-red.png", "shape": "x", "color": "red", "tiles": 2, "layout": "diagonal-separated" },
+    { "id": "x-yellow", "file": "x-yellow.png", "shape": "x", "color": "yellow", "tiles": 2, "layout": "diagonal-separated" },
+    { "id": "x-blue", "file": "x-blue.png", "shape": "x", "color": "blue", "tiles": 2, "layout": "diagonal-separated" }
+  ],
+  "spriteCanvas": { "width": 1254, "height": 1254, "format": "PNG", "alpha": true }
+}
