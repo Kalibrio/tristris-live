@@ -371,7 +371,8 @@
         el.textContent = finale ? 'Trumble!' : text;
         el.style.color = color;
         el.style.left = `${r.left + r.width * (0.25 + Math.random() * 0.5)}px`;
-        el.style.top = `${r.top + r.height * (0.2 + Math.random() * 0.25)}px`;
+        // clear of the wordmark: pop from ~10% above the logo's top edge
+        el.style.top = `${r.top - r.height * (0.10 + Math.random() * 0.08)}px`;
         document.body.appendChild(el);
         const rise = finale ? 96 : 64;
         const anim = el.animate([
