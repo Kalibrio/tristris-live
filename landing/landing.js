@@ -557,7 +557,7 @@
       // tells the root's front-door gate this visit has entered, and the
       // ?from=landing param covers browsers with no storage, so the gate
       // can never bounce us back here in a loop.
-      try { sessionStorage.setItem('tristris.entered', '1'); } catch { /* no storage: the param carries it */ }
+      try { sessionStorage.setItem('trumble.entered', '1'); } catch { /* no storage: the param carries it */ }
       setTimeout(() => { location.href = '/?from=landing'; }, 620);
     }
 
@@ -589,7 +589,7 @@
         this.fx.burst(c.x, c.y, 20);
       }
 
-      // logo flair (Tetris-reference, 2026-08-24): every ~6s a star glint
+      // logo flair (his falling-block reference, 2026-08-24): every ~6s a star glint
       // pops on the logo's border ring with a small sparkle spray — timed
       // against the CSS wobble so the logo glints, then shakes it off
       if (!reducedMotion && this.t >= this.flairAt) {
