@@ -27,15 +27,20 @@
     (function () {
       if (location.hostname !== 'trumble.kalibrio.com') return;
       var q = location.search;
-      if (q.indexOf('play=') !== -1 || q.indexOf('from=landing') !== -1) return;
+      // tool deep links pass through too (editor fix 2026-08-30): the
+      // landing bounce dropped ?levels=1 — /level's documented handoff —
+      // and the design tool silently landed on Home instead of opening
+      if (q.indexOf('play=') !== -1 || q.indexOf('from=landing') !== -1
+        || q.indexOf('levels=') !== -1 || q.indexOf('builder=') !== -1
+        || q.indexOf('workshop=') !== -1 || q.indexOf('dash=') !== -1) return;
       try {
         if (sessionStorage.getItem('trumble.entered')) return;
       } catch (e) { return; } // no storage: fail open to the game
       location.replace('/landing/');
     })();
   </script>
-  <script type="module" crossorigin src="/assets/index-DAX3efIh.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-BBC0N4Uh.css">
+  <script type="module" crossorigin src="/assets/index-DWUgrWNe.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-LxRvYKaa.css">
 </head>
 <body>
   <div id="app">
