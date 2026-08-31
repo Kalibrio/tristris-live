@@ -11,5 +11,8 @@
     "baseSeed": 424242
   },
   "levels": {},
-  "season": null
+  "season": null,
+  "experiments": {
+    "frontdoor": ["control", "frontdoor"]
+  }
 }
