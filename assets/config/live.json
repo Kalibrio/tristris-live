@@ -14,5 +14,9 @@
   "season": null,
   "experiments": {
     "frontdoor": ["control", "frontdoor"]
+  },
+  "controls": {
+    "pad": true,
+    "tapPlace": true
   }
 }
