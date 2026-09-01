@@ -98,5 +98,8 @@
   "controls": {
     "pad": true,
     "tapPlace": true
+  },
+  "social": {
+    "teams": false
   }
 }
