@@ -10,10 +10,90 @@
     "durH": 57,
     "baseSeed": 424242
   },
-  "levels": {},
+  "levels": {
+    "20": {
+      "powers": [
+        "bomb",
+        "hold"
+      ]
+    },
+    "21": {
+      "powers": [
+        "bomb",
+        "colorshift",
+        "hold"
+      ]
+    },
+    "22": {
+      "powers": [
+        "bomb",
+        "colorshift",
+        "hold"
+      ]
+    },
+    "23": {
+      "powers": [
+        "bomb",
+        "colorshift",
+        "hold"
+      ]
+    },
+    "24": {
+      "powers": [
+        "bomb",
+        "colorshift",
+        "hold"
+      ]
+    },
+    "25": {
+      "powers": [
+        "bomb",
+        "colorshift",
+        "hold"
+      ]
+    },
+    "26": {
+      "powers": [
+        "bomb",
+        "rocket",
+        "hold"
+      ]
+    },
+    "27": {
+      "powers": [
+        "bomb",
+        "rocket",
+        "hold"
+      ]
+    },
+    "28": {
+      "powers": [
+        "bomb",
+        "colorshift",
+        "hold"
+      ]
+    },
+    "29": {
+      "powers": [
+        "bomb",
+        "rocket",
+        "hold"
+      ]
+    },
+    "30": {
+      "powers": [
+        "bomb",
+        "rocket",
+        "hold"
+      ]
+    }
+  },
   "season": null,
   "experiments": {
-    "frontdoor": ["control", "frontdoor"]
+    "frontdoor": [
+      "control",
+      "frontdoor"
+    ]
   },
   "controls": {
     "pad": true,
