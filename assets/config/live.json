@@ -101,5 +101,8 @@
   },
   "social": {
     "teams": false
+  },
+  "dev": {
+    "unlock": "87cf9287a6f928b0c27721cd021541a8a6e43e564dc815eb90265a7df8959b37"
   }
 }
